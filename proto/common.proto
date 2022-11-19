@@ -1,0 +1,56 @@
+syntax = "proto3"; // 指定proto版本
+
+package common; // 包名
+option go_package="./;common"; // 文件输出路径和包名，使用分号分隔开
+
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  // send another greeting
+  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
+}
+service UserService { // 服务名
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+  rpc GetNames (GetNamesRequest) returns (GetNamesResponse);
+}
+
+message HelloRequest { // GetUser方法的请求参数
+  string name = 1;
+}
+
+message HelloReply { // GetUser方法的请求参数
+  string message = 1;
+}
+
+message GetUserRequest { // GetUser方法的请求参数
+  int64 id = 1;
+  string name = 2;
+}
+
+message ImageObj {
+  int64 id = 1;
+  int64 index = 2;
+  string url = 3;
+}
+
+message UserObj {
+  int64 id = 1;
+  string name = 2;
+  repeated ImageObj images = 3; // 结果是数组则使用repeated
+}
+
+message GetUserResponse { // GetUser方法的返回参数
+  int64 code = 1;
+  string msg = 2;
+  repeated UserObj data = 3; // repeated 表示该参数类型为数组或切片
+}
+
+message GetNamesRequest { // GetNames方法的请求参数
+}
+
+message GetNamesResponse { // GetNames方法的返回参数
+  int64 code = 1;
+  string msg = 2;
+  repeated string data = 3;
+}
