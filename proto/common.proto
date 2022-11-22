@@ -4,22 +4,24 @@ package common; // 包名
 option go_package="./;common"; // 文件输出路径和包名，使用分号分隔开
 
 // The greeting service definition.
-service Greeter {
+service Greeter {// 服务名
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply) {}
   // send another greeting
   rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
 }
 service UserService { // 服务名
+  //获取用户信息
   rpc GetUser (GetUserRequest) returns (GetUserResponse);
+  //获取用户名称
   rpc GetNames (GetNamesRequest) returns (GetNamesResponse);
 }
 
-message HelloRequest { // GetUser方法的请求参数
+message HelloRequest { // SayHello、SayHelloAgain方法的请求参数
   string name = 1;
 }
 
-message HelloReply { // GetUser方法的请求参数
+message HelloReply { // SayHello、SayHelloAgain方法的返回参数
   string message = 1;
 }
 

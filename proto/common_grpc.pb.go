@@ -148,7 +148,9 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
+	// 获取用户信息
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	// 获取用户名称
 	GetNames(ctx context.Context, in *GetNamesRequest, opts ...grpc.CallOption) (*GetNamesResponse, error)
 }
 
@@ -182,7 +184,9 @@ func (c *userServiceClient) GetNames(ctx context.Context, in *GetNamesRequest, o
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
+	// 获取用户信息
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	// 获取用户名称
 	GetNames(context.Context, *GetNamesRequest) (*GetNamesResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
