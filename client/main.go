@@ -81,6 +81,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	//测试etcd监听
+	_, err = cli.Put(context.Background(), "watchListenData", "changeAfter_456", clientv3.WithPrevKV())
+	//测试etcd监听
+	_, err = cli.Put(context.Background(), "watchListenData", "changeAfter_789", clientv3.WithPrevKV())
 	//下面每隔1s对服务器调用一次
 	etcdClient := common.NewGreeterClient(conn)
 	for {

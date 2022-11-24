@@ -3,11 +3,14 @@ package main
 import (
 	"Grpc/proto"
 	"context"
+	"flag"
+	"fmt"
 	consulapi "github.com/hashicorp/consul/api"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -50,15 +53,18 @@ func (s *server) GetNames(ctx context.Context, in *common.GetNamesRequest) (*com
 
 var cli *clientv3.Client
 var interval = 5
-var grpcAddr = "localhost:8800"
+var port = "8800"
 
 // listen
 func main() {
-	listen, _ := net.Listen("tcp", "localhost:8800") // 创建监听
-	s := grpc.NewServer()                            // 创建grpc服务
-	common.RegisterUserServiceServer(s, &server{})   // 注册服务
-	common.RegisterGreeterServer(s, &server{})       // 注册服务
-	log.Printf("now listen: %v", "localhost:8800")   // 启动监听
+	flag.StringVar(&port, "p", "8800", "端口")
+	flag.Parse()
+	var grpcAddr = "localhost:" + port
+	listen, _ := net.Listen("tcp", grpcAddr)       // 创建监听
+	s := grpc.NewServer()                          // 创建grpc服务
+	common.RegisterUserServiceServer(s, &server{}) // 注册服务
+	common.RegisterGreeterServer(s, &server{})     // 注册服务
+	log.Printf("now listen: %v", grpcAddr)         // 启动监听
 	registerServerConsul()
 	registerServerEtcd([]string{"127.0.0.1:2379"}, "etcdTest", grpcAddr)
 	log.Println("启动Grpc服务器：", grpcAddr)
@@ -79,7 +85,7 @@ func registerServerConsul() {
 
 	registration := new(consulapi.AgentServiceRegistration)
 	registration.Address = "127.0.0.1"             // 服务 IP
-	registration.Port = 8800                       // 服务端口
+	registration.Port, _ = strconv.Atoi(port)      // 服务端口
 	registration.ID = "UserService"                // 服务节点的名称
 	registration.Name = "UserService"              // 服务名称
 	registration.Tags = []string{"UserService-v1"} // tag，可以为空
@@ -120,12 +126,22 @@ func register(serviceName, serviceAddr string) error {
 	if err != nil {
 		return err
 	}
-	fullKey := serviceName
+	fullKey := serviceName + "//" + strconv.Itoa(int(leaseResp.ID))
 	_, err = cli.Put(context.Background(), fullKey, getValue(serviceAddr), clientv3.WithLease(leaseResp.ID))
+	_, err = cli.Put(context.Background(), "watchListenData", "changeBefore_123", clientv3.WithLease(leaseResp.ID))
 	if err != nil {
 		return err
 	}
 	keepAlive(serviceName, serviceAddr, leaseResp)
+	//监听某个key的变化
+	go func() {
+		wc := cli.Watch(context.Background(), "watchListenData", clientv3.WithPrevKV())
+		for v := range wc {
+			for _, e := range v.Events {
+				fmt.Printf("type:%v key:%v  version:%v preValue:%v \n ", e.Type, string(e.Kv.Key), e.PrevKv.Version, string(e.PrevKv.Value))
+			}
+		}
+	}()
 	return nil
 }
 
