@@ -28,7 +28,7 @@ Protocol Buffers(protobuf)：与编程语言无关，与程序运行平台无关
 #consul
       1.安装运行consul,使得127.0.0.1:8500端口可以正常访问
 	  2.启动grpc服务端，完成consul服务注册，把grpc服务端服务IP、端口、服务名称等注册到consul上面
-	  3.启动grpc客户端，去consul拿到grpc服务端的服务IP、端口、服务名称等信息，并建立起连接
+	  3.启动grpc客户端，根据服务名称去consul拿到grpc服务端的服务IP、端口等信息，并建立起连接
 	  4.正常走grpc之间调用的流程
 
 
